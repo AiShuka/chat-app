@@ -23,7 +23,7 @@ require 'rspec/rails'
 # directory. Alternatively, in the individual `*_spec.rb` files, manually
 # require only the support files necessary.
 #
-# Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
+Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
 # Checks for pending migrations and applies them before tests are run.
 # If you are not using ActiveRecord, you can remove these lines.
@@ -36,6 +36,7 @@ end
 I18n.locale = "en"
 
 RSpec.configure do |config|
+  config.include SignInSupport
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_path = Rails.root.join('spec/fixtures')
 
@@ -68,4 +69,13 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+end
+
+Capybara.register_driver :selenium_chrome do |app|
+  options = Selenium::WebDriver::Chrome::Options.new
+  options.add_argument('--headless')  # ヘッドレスモードで実行
+  options.add_argument('--disable-gpu')  # GPUの無効化
+  options.add_argument('--no-sandbox')  # 制限された環境で実行
+  Selenium::WebDriver::Chrome.path = '/usr/local/bin/chromedriver'  # 明示的にドライバのパスを指定
+  Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
 end
